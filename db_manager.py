@@ -56,6 +56,10 @@ class DBManager:
         :return: None
         """
         try:
+            if not query.strip():  # Check if the query is empty or contains only whitespace
+                logging.warning("Trying to execute an empty query.")
+                return
+
             with psycopg2.connect(**self.params) as conn:
                 conn.autocommit = True
                 with conn.cursor() as cur:
@@ -83,6 +87,7 @@ class DBManager:
             conn.autocommit = True
             cur = conn.cursor()
             try:
+                conn.set_session(autocommit=True)
                 cur.execute(f"DROP DATABASE IF EXISTS {self.name}")
             except psycopg2.Error as e:
                 logging.error(f"Ошибка создания базы данных: {e}")
@@ -104,17 +109,20 @@ class DBManager:
                 cur.close()
 
     @connect_decorator
+    @connect_decorator
     def create_table_companies(self):
         """
         Метод для создания таблицы компаний
         :return: None
         """
-        query = '''CREATE TABLE IF NOT EXISTS companies (
-                company_id_hh integer PRIMARY KEY,
-                company_name varchar(150),
-                employer_url varchar(150)
-            )'''
-        return query
+        table_exists_query = "SELECT to_regclass('companies') IS NOT NULL;"
+        if not self.run_query(table_exists_query, execute=False):
+            query = '''CREATE TABLE companies (
+                    company_id_hh integer PRIMARY KEY,
+                    company_name varchar(150),
+                    employer_url varchar(150)
+                )'''
+            return query
 
     @connect_decorator
     def create_table_vacancies(self):
@@ -122,20 +130,22 @@ class DBManager:
         Метод для создания таблицы вакансий
         :return: None
         """
-        query = '''CREATE TABLE vacancies (
-                vacancy_id_hh integer PRIMARY KEY,
-                company_id_hh integer,
-                vacancy_name varchar(150),
-                data_published date,
-                salary_average integer,
-                area varchar(150),
-                url varchar(150),
-                requirement varchar(500),
-                experience varchar(150),
-                employment varchar(150),
-                CONSTRAINT fk_hh_vacancies_vacancies FOREIGN KEY(company_id_hh) REFERENCES companies(company_id_hh)
-            )'''
-        return query
+        table_exists_query = "SELECT to_regclass('vacancies') IS NOT NULL;"
+        if not self.run_query(table_exists_query, execute=False):
+            query = '''CREATE TABLE vacancies (
+                    vacancy_id_hh integer PRIMARY KEY,
+                    company_id_hh integer,
+                    vacancy_name varchar(150),
+                    data_published date,
+                    salary_average integer,
+                    area varchar(150),
+                    url varchar(150),
+                    requirement varchar(500),
+                    experience varchar(150),
+                    employment varchar(150),
+                    CONSTRAINT fk_hh_vacancies_vacancies FOREIGN KEY(company_id_hh) REFERENCES companies(company_id_hh)
+                )'''
+            return query
 
     #
 

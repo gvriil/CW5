@@ -1,6 +1,10 @@
+import db_manager
 from api.hh_api import HeadHunterApi
 from config import DB_PARAMS
 from db_manager import DBManager
+
+# db_manager.create_table_companies()
+# db_manager.create_table_vacancies()
 
 
 def fetch_and_save_vacancies(company_ids, hh, db_manager):
@@ -17,8 +21,8 @@ def fetch_and_save_vacancies(company_ids, hh, db_manager):
                                     for data in company_ids))
     db_manager.insert_data_vacancy(
         [(vacancy.id, vacancy.employer_id, vacancy.name, vacancy.data_published,
-           vacancy.salary_average, vacancy.area, vacancy.url, vacancy.requirement,
-           vacancy.experience, vacancy.employment)
+          vacancy.salary_average, vacancy.area, vacancy.url, vacancy.requirement,
+          vacancy.experience, vacancy.employment)
          for vacancy in vacancy_data])
 
 
