@@ -8,26 +8,29 @@ def connect_decorator(func):
 
         conn = psycopg2.connect(**self.params)
         cursor = conn.cursor()
-        if len(args) > 0:
-            if isinstance(args[0], (dict, list, tuple)):
-                query, data = func(self, args[0])
-                cursor.executemany(query, data)
+        try:
+            if len(args) > 0:
+                if isinstance(args[0], (dict, list, tuple)):
+                    query, data = func(self, args[0])
+                    cursor.executemany(query, data)
+                else:
+                    query, data = func(self, args[0])
+                    cursor.execute(query)
+
             else:
-                query = func(self, args[0])
+                query = func(self)
                 cursor.execute(query)
 
-        else:
-            query = func(self)
-            cursor.execute(query)
-
-        if func.__name__.startswith('get_'):
-            collumn = [i.name for i in cursor.description]
-            row = cursor.fetchall()
-            print(collumn, row)
-
-        conn.commit()
-        cursor.close()
-        conn.close()
+            if func.__name__.startswith('get_'):
+                collumn = [i.name for i in cursor.description]
+                rows = cursor.fetchall()
+                print(collumn, rows)
+        except psycopg2.Error as e:
+            logging.error(f'Error executing query: {e}')
+        finally:
+            conn.commit()
+            cursor.close()
+            conn.close()
 
     return wraper
 
@@ -44,38 +47,27 @@ class DBManager:
         self.create_table_companies()
         self.create_table_vacancies()
 
-    def select_query(self, query: str):
+    def run_query(self, query: str, values: tuple = None, execute: bool = True):
         """
         Выполняет SQL-запрос с возможными значениями
         :param query: str
         :param values: tuple
+        :param execute: bool, указывает, нужно ли выполнять запрос (True) или только выбирать данные (False)
         :return: None
         """
         try:
             with psycopg2.connect(**self.params) as conn:
                 conn.autocommit = True
                 with conn.cursor() as cur:
-                    cur.execute(query)
-                    result = cur.fetchone()[0]
-        except psycopg2.Error as e:
-            logging.error(f"Error executing query: {e}")
-        return result
-
-    def execute_query(self, query: str, values: tuple = None):
-        """
-        Выполняет SQL-запрос с возможными значениями
-        :param query: str
-        :param values: tuple
-        :return: None
-        """
-        try:
-            with psycopg2.connect(**self.params) as conn:
-                conn.autocommit = True
-                with conn.cursor() as cur:
-                    if values:
-                        cur.execute(query, values)
+                    if execute:
+                        if values:
+                            cur.execute(query, values)
+                        else:
+                            cur.execute(query)
                     else:
                         cur.execute(query)
+                        result = cur.fetchone()[0]
+                        return result
         except psycopg2.Error as e:
             logging.error(f"Error executing query: {e}")
 
@@ -124,17 +116,6 @@ class DBManager:
             )'''
         return query
 
-    # def create_table_companies(self):
-    #     """
-    #     Метод для создания таблицы компаний
-    #     :return: None
-    #     """
-    #     query = '''CREATE TABLE companies (
-    #             company_id_hh integer PRIMARY KEY,
-    #             company_name varchar(150),
-    #             employer_url varchar(150)
-    #         )'''
-    #     self.execute_query(query)
     @connect_decorator
     def create_table_vacancies(self):
         """
@@ -155,25 +136,8 @@ class DBManager:
                 CONSTRAINT fk_hh_vacancies_vacancies FOREIGN KEY(company_id_hh) REFERENCES companies(company_id_hh)
             )'''
         return query
-    # def create_table_vacancies(self):
-    #     """
-    #     Метод для создания таблицы вакансий
-    #     :return: None
-    #     """
-    #     query = '''CREATE TABLE vacancies (
-    #             vacancy_id_hh integer PRIMARY KEY,
-    #             company_id_hh integer,
-    #             vacancy_name varchar(150),
-    #             data_published date,
-    #             salary_average integer,
-    #             area varchar(150),
-    #             url varchar(150),
-    #             requirement varchar(500),
-    #             experience varchar(150),
-    #             employment varchar(150),
-    #             CONSTRAINT fk_hh_vacancies_vacancies FOREIGN KEY(company_id_hh) REFERENCES companies(company_id_hh)
-    #         )'''
-    #     self.execute_query(query)
+
+    #
 
     @connect_decorator
     def insert_data_company(self, data: list):
@@ -185,39 +149,29 @@ class DBManager:
         query = "INSERT INTO companies VALUES (%s, %s)"
         return query, data
 
-    # def insert_data_company(self, data: dict):
-    #     """
-    #     Метод для вставки данных в таблицу компаний
-    #     :param data: Словарь с данными компании
-    #     :return: None
-    #     """
-    #     query = "INSERT INTO companies VALUES (%s, %s)"
-    #     values = (
-    #         int(data["id"]), data["name"])
-    #     # data["employer"]["alternate_url"])
-    #     self.execute_query(query, values)
-
     @connect_decorator
     def get_companies_and_vacancies_count(self):
         """
-        Получение количества компаний и вакансий в базе данных.
+        This method for getting companies with count of vacancies
+        :return: str
         """
-        query = '''SELECT c.company_name, 
-                COUNT(c.company_name) AS "кол-во вакансий"
-FROM vacancies v
-JOIN companies c USING(company_id_hh)
-GROUP BY c.company_name
-ORDER BY 2 DESC'''
-        return query
+        query_check_data = '''SELECT COUNT(*) FROM companies;'''
+        try:
+            with psycopg2.connect(**self.params) as conn:
+                with conn.cursor() as cur:
+                    cur.execute(query_check_data)
+                    count = cur.fetchone()[0]
+                    if count == 0:
+                        print("Нет данных о компаниях и вакансиях.")
+                        return ""
+        except psycopg2.Error as e:
+            logging.error(f"Error checking data: {e}")
+            print(f"Error checking data: {e}")
 
-    @connect_decorator
-    #олучает список всех вакансий с указанием названия компании, названия вакансии и зарплаты и ссылки на вакансию.
-    def get_all_vacancies(self):
-        query = '''
-                    SELECT c.company_name, v.vacancy_name, v.salary_average, v.url
-                    FROM vacancies v
-                    JOIN companies c USING (company_id_hh);
-                '''
+        query = '''SELECT company_name, COUNT(*)
+                   FROM vacancies
+                   JOIN companies USING (company_id_hh)
+                   GROUP BY company_name'''
         return query
 
     @connect_decorator
@@ -238,9 +192,8 @@ ORDER BY 2 DESC'''
                 '''
         return query
 
-
     @connect_decorator
-    #получает список всех вакансий, в названии которых содержатся переданные в метод слова, например python.
+    # получает список всех вакансий, в названии которых содержатся переданные в метод слова, например python.
     def get_vacancies_with_keyword(self, word):
         query = f'''
                     SELECT c.company_name, v.vacancy_name, v.salary_average, v.url
@@ -249,6 +202,7 @@ ORDER BY 2 DESC'''
                     WHERE (v.vacancy_name) LIKE '%{word}%';                                 
                 '''
         return query
+
     @connect_decorator
     def insert_data_vacancy(self, data: list):
         """
