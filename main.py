@@ -1,7 +1,7 @@
-from api.hh_api import HeadHunterAPI
+from api.hh_api import HeadHunterApi
 from config import DB_PARAMS
 from db_manager import DBManager
-from user_interface import print_companies_and_vacancies
+
 
 def fetch_and_save_vacancies(company_ids, hh, db_manager):
     vacancy_data = []
@@ -13,9 +13,8 @@ def fetch_and_save_vacancies(company_ids, hh, db_manager):
         except Exception as e:
             print(f"Error fetching vacancies for company {id_}: {e}")
 
-    db_manager.insert_data_company([(int(data["id"]), data["name"])
-                                    for data in company_ids])
-
+    db_manager.insert_data_company(((int(data["id"]), data["name"])
+                                    for data in company_ids))
     db_manager.insert_data_vacancy(
         [(vacancy.id, vacancy.employer_id, vacancy.name, vacancy.data_published,
            vacancy.salary_average, vacancy.area, vacancy.url, vacancy.requirement,
@@ -39,19 +38,20 @@ def main():
             {"name": "ИКС Холдинг",
              "id": 16206}
         ]
-        hh = HeadHunterAPI()
+        hh = HeadHunterApi()
 
         fetch_and_save_vacancies(company, hh, db_manager)
 
         companies_and_vacancies = db_manager.get_companies_and_vacancies_count()
-
-        if companies_and_vacancies is not None:
-            print_companies_and_vacancies(companies_and_vacancies)
-        else:
-            print("Нет данных о компаниях и вакансиях.")
+        print("Companies and vacancies count:", companies_and_vacancies)
 
     except ConnectionError as e:
         raise e
+
+        # print(f"Error in main: {e}")
+    # finally:
+    #     if db_manager:
+    #         db_manager.close_connection()
 
 
 if __name__ == '__main__':

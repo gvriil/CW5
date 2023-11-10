@@ -6,7 +6,7 @@ from api.abc_api import API
 from vacancy import Vacancy
 
 
-class HeadHunterAPI(API):
+class HeadHunterApi(API):
     """
     Класс для взаимодействия с API HeadHunter для получения вакансий.
     """
@@ -38,7 +38,7 @@ class HeadHunterAPI(API):
             if response.status_code != 200:
                 raise ConnectionError('Ошибка связи с API')
 
-            result = HeadHunterAPI._data_format(response.json())
+            result = HeadHunterApi._data_format(response.json())
             if result:
                 res.extend(result)
         return res

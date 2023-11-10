@@ -77,31 +77,31 @@ class DBManager:
         :return: None
         """
         self.params['dbname'] = 'postgres'
-        # Удаляем базу данных, если она уже существует
-        conn = psycopg2.connect(**self.params)
-        conn.autocommit = True
-        cur = conn.cursor()
-        try:
-            cur.execute(f"DROP DATABASE IF EXISTS {self.name}")
-        except psycopg2.Error as e:
-            logging.error(f"Ошибка создания базы данных: {e}")
-        finally:
-            cur.close()
-            conn.close()
-        # Создаем новую базу данных
-        conn = psycopg2.connect(**self.params)
-        conn.autocommit = True
-        cur = conn.cursor()
-        try:
-            cur.execute(f'CREATE DATABASE {self.name}')
 
-            # Обновляем параметры подключения к базе данных
-            self.params.update({'dbname': self.name})
-        except psycopg2.Error as e:
-            logging.error(f"Ошибка создания базы данных: {e}")
-        finally:
-            cur.close()
-            conn.close()
+        # Удаляем базу данных, если она уже существует
+        with psycopg2.connect(**self.params) as conn:
+            conn.autocommit = True
+            cur = conn.cursor()
+            try:
+                cur.execute(f"DROP DATABASE IF EXISTS {self.name}")
+            except psycopg2.Error as e:
+                logging.error(f"Ошибка создания базы данных: {e}")
+            finally:
+                cur.close()
+
+        # Создаем новую базу данных
+        with psycopg2.connect(**self.params) as conn:
+            conn.autocommit = True
+            cur = conn.cursor()
+            try:
+                cur.execute(f'CREATE DATABASE {self.name}')
+
+                # Обновляем параметры подключения к базе данных
+                self.params.update({'dbname': self.name})
+            except psycopg2.Error as e:
+                logging.error(f"Ошибка создания базы данных: {e}")
+            finally:
+                cur.close()
 
     @connect_decorator
     def create_table_companies(self):
@@ -147,6 +147,7 @@ class DBManager:
         :return: None
         """
         query = "INSERT INTO companies VALUES (%s, %s)"
+        data = tuple(data)
         return query, data
 
     @connect_decorator
@@ -163,7 +164,7 @@ class DBManager:
                     count = cur.fetchone()[0]
                     if count == 0:
                         print("Нет данных о компаниях и вакансиях.")
-                        return ""
+                        return None
         except psycopg2.Error as e:
             logging.error(f"Error checking data: {e}")
             print(f"Error checking data: {e}")
@@ -207,9 +208,17 @@ class DBManager:
     def insert_data_vacancy(self, data: list):
         """
         Метод для вставки данных в таблицу вакансий
-        :param vacancies: Список объектов вакансий
+        :param data: Список объектов вакансий
         :return: None
         """
+        company_id = data[1]  # Assuming company_id is at index 1 in the data list
+        # Check if the company_id exists in the companies table
+        if self.run_query("SELECT COUNT(*) FROM companies WHERE company_id_hh = %s", (company_id,),
+                          execute=False) == 0:
+            logging.error(
+                f"Error inserting data into vacancies: Company with ID {company_id} does not exist.")
+            return
+
         query = "INSERT INTO vacancies VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)"
         return query, data
 
