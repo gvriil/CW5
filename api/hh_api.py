@@ -12,7 +12,7 @@ class HeadHunterApi(API):
     """
 
     cache = {}
-    per_page = 100
+    per_page = 1
 
     def get_vacancies(self, company_id):
         """

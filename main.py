@@ -1,6 +1,8 @@
 from api.hh_api import HeadHunterApi
 from config import DB_PARAMS
 from db_manager import DBManager
+
+
 #
 # db_manager.create_table_companies()
 # db_manager.create_table_vacancies()
@@ -16,13 +18,15 @@ def fetch_and_save_vacancies(company_ids, hh, db_manager):
         except Exception as e:
             print(f"Error fetching vacancies for company {id_}: {e}")
 
-    db_manager.insert_data_company(((int(data["id"]), data["name"])
-                                    for data in company_ids))
-    db_manager.insert_data_vacancy(
-        [(vacancy.id, vacancy.employer_id, vacancy.name, vacancy.data_published,
-          vacancy.salary_average, vacancy.area, vacancy.url, vacancy.requirement,
-          vacancy.experience, vacancy.employment)
-         for vacancy in vacancy_data])
+    for data in company_ids:
+        db_manager.insert_data_company(int(data["id"]), data["name"])
+
+    for vacancy in vacancy_data:
+        db_manager.insert_data_vacancy(vacancy.id, vacancy.employer_id,
+                                       vacancy.name, vacancy.data_published,
+                                       vacancy.salary_average, vacancy.area,
+                                       vacancy.url, vacancy.requirement,
+                                       vacancy.experience, vacancy.employment)
 
 
 def main():
@@ -45,8 +49,7 @@ def main():
 
         fetch_and_save_vacancies(company, hh, db_manager)
 
-        companies_and_vacancies = db_manager.get_companies_and_vacancies_count()
-        print("Companies and vacancies count:", companies_and_vacancies)
+        db_manager.get_companies_and_vacancies_count()
 
     except ConnectionError as e:
         raise e

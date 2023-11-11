@@ -6,7 +6,7 @@ DB_PARAMS = {
     'host': 'localhost',
     'user': 'postgres',
     'password': '12345',
-    'dbname': 'postgres',
+    'dbname': 'cw5',
     'port': 5433
 }
 
