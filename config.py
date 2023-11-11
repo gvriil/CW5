@@ -6,8 +6,8 @@ DB_PARAMS = {
     'host': 'localhost',
     'user': 'postgres',
     'password': '12345',
-    'dbname': 'cw5',
-    'port': 5433,  # Укажите здесь фактический номер порта PostgreSQL
+    'dbname': 'postgres',
+    'port': 5433
 }
 
 

@@ -1,8 +1,7 @@
-import db_manager
 from api.hh_api import HeadHunterApi
 from config import DB_PARAMS
 from db_manager import DBManager
-
+#
 # db_manager.create_table_companies()
 # db_manager.create_table_vacancies()
 
@@ -52,11 +51,21 @@ def main():
     except ConnectionError as e:
         raise e
 
-        # print(f"Error in main: {e}")
-    # finally:
-    #     if db_manager:
-    #         db_manager.close_connection()
-
 
 if __name__ == '__main__':
     main()
+#     # hh = HeadHunterApi()
+#     # vacancies = hh.get_vacancies('1740')
+#
+#     # for vacancy in vacancies:
+#     #     print(f"Vacancy ID: {vacancy.id}")
+#     #     print(f"Employer ID: {vacancy.employer_id}")
+#     #     print(f"Name: {vacancy.name}")
+#     #     print(f"Published Date: {vacancy.data_published}")
+#     #     print(f"Salary Average: {vacancy.salary_average}")
+#     #     print(f"Area: {vacancy.area}")
+#     #     print(f"URL: {vacancy.url}")
+#     #     print(f"Requirement: {vacancy.requirement}")
+#     #     print(f"Experience: {vacancy.experience}")
+#     #     print(f"Employment: {vacancy.employment}")
+#     #     print("-" * 50)

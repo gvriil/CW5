@@ -4,7 +4,7 @@ import psycopg2
 
 
 def connect_decorator(func):
-    def wraper(self, *args, **kwargs):
+    def wrapper(self, *args, **kwargs):
 
         conn = psycopg2.connect(**self.params)
         cursor = conn.cursor()
@@ -32,7 +32,7 @@ def connect_decorator(func):
             cursor.close()
             conn.close()
 
-    return wraper
+    return wrapper
 
 
 class DBManager:
@@ -108,8 +108,6 @@ class DBManager:
             finally:
                 cur.close()
 
-    @connect_decorator
-    @connect_decorator
     def create_table_companies(self):
         """
         Метод для создания таблицы компаний
@@ -124,7 +122,6 @@ class DBManager:
                 )'''
             return query
 
-    @connect_decorator
     def create_table_vacancies(self):
         """
         Метод для создания таблицы вакансий
@@ -188,7 +185,7 @@ class DBManager:
     @connect_decorator
     def get_avg_salery(self):
         query = '''
-                    SELECT  ROUND(AVG(salary_average),2 ) 
+                    SELECT  ROUND(AVG(salary_average),2 )
                     FROM vacancies;
                 '''
         return query
@@ -210,7 +207,7 @@ class DBManager:
                     SELECT c.company_name, v.vacancy_name, v.salary_average, v.url
                     FROM vacancies v
                     JOIN companies c USING (company_id_hh)
-                    WHERE (v.vacancy_name) LIKE '%{word}%';                                 
+                    WHERE (v.vacancy_name) LIKE '%{word}%';
                 '''
         return query
 
