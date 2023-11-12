@@ -12,7 +12,7 @@ class HeadHunterApi(API):
     """
 
     cache = {}
-    per_page = 1
+    per_page = 5
 
     def get_vacancies(self, company_id):
         """
@@ -25,7 +25,7 @@ class HeadHunterApi(API):
             list[Vacancy]: Список объектов Vacancy, представляющих вакансии.
         """
         url = "https://api.hh.ru/vacancies"
-        pages_amount = 2
+        pages_amount = 6
         params = {
             "per_page": self.per_page,
             "employer_id": int(company_id)

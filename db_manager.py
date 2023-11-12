@@ -22,9 +22,24 @@ def connect_decorator(func):
                 cursor.execute(query)
 
             if func.__name__.startswith('get_'):
-                column = [i.name for i in cursor.description]
+                column_names = [i.name for i in cursor.description]
                 rows = cursor.fetchall()
-                print(column, rows)
+
+                # Выводим заголовки столбцов
+                print(" | ".join(column_names))
+                print("-" * 50)
+
+                # Выводим данные
+                for row in rows:
+                    print(row)  # Add this line to see the content of the row
+                    print(f"{row[0]} | {row[1]}")  # Предполагаем, что данные о компании и количестве вакансий в первых двух столбцах
+
+                print("-" * 50)
+                print(f"Всего строк: {len(rows)}")
+            # if func.__name__.startswith('get_'):
+            #     column = [i.name for i in cursor.description]
+            #     rows = cursor.fetchall()
+            #     print(**f'вакансий в компаниях:{rows}')
         except psycopg2.Error as e:
             logging.error(f'Error executing query: {e}')
         finally:
@@ -185,9 +200,9 @@ class DBManager:
         return query
 
     @connect_decorator
-    def get_avg_salery(self):
+    def get_avg_salary(self):
         query = '''
-                    SELECT  ROUND(AVG(salary_average),2 )
+                    SELECT ROUND(AVG(salary_average), 2)
                     FROM vacancies;
                 '''
         return query
@@ -231,19 +246,42 @@ class DBManager:
         query = "INSERT INTO vacancies VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)"
         return query, data
 
-    # def insert_data_vacancy(self, vacancies: list):
-    #     """
-    #     Метод для вставки данных в таблицу вакансий
-    #     :param vacancies: Список объектов вакансий
-    #     :return: None
-    #     """
-    #     query = "INSERT INTO vacancies VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)"
-    #     for vacancy in vacancies:
-    #         values = (vacancy.id, vacancy.employer_id, vacancy.name, vacancy.data_published,
-    #                   vacancy.salary_average, vacancy.area, vacancy.url, vacancy.requirement,
-    #                   vacancy.experience, vacancy.employment)
-    #
-    #         self.execute_query(query, values)
+    @connect_decorator
+    def get_all_vacancies(self):
+        query = '''
+                        SELECT c.company_name, v.vacancy_name, v.salary_average, v.url
+                        FROM vacancies v
+                        JOIN companies c USING (company_id_hh);
+                    '''
+        return query
+
+    @connect_decorator
+    def get_avg_salary(self):
+        query = '''
+                        SELECT ROUND(AVG(salary_average), 2)
+                        FROM vacancies;
+                    '''
+        return query
+
+    @connect_decorator
+    def get_vacancies_with_higher_salary(self):
+        query = '''
+                        SELECT c.company_name, v.vacancy_name, v.salary_average, v.url
+                        FROM vacancies v
+                        JOIN companies c USING (company_id_hh)
+                        WHERE v.salary_average > (SELECT ROUND(AVG(salary_average), 2) FROM vacancies);
+                    '''
+        return query
+
+    @connect_decorator
+    def get_vacancies_with_keyword(self, word):
+        query = f'''
+                        SELECT c.company_name, v.vacancy_name, v.salary_average, v.url
+                        FROM vacancies v
+                        JOIN companies c USING (company_id_hh)
+                        WHERE (v.vacancy_name) LIKE '%{word}%';
+                    '''
+        return query
 
     def close_connection(self):
         """
