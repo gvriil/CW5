@@ -5,11 +5,20 @@ from db_manager import DBManager
 
 
 def get_user_choice():
+    """
+       Получает ввод пользователя для выбора опции в меню.
+
+       Возвращает:
+       str: Выбранная пользователем опция.
+    """
     user_choice = input("Введите номер выбранной опции: ")
     return user_choice
 
 
 def print_menu():
+    """
+       Выводит основное меню с пронумерованными опциями.
+       """
     print("Меню:")
     print("1. Получить и сохранить вакансии")
     print("2. Показать компании и количество вакансий")
@@ -21,6 +30,12 @@ def print_menu():
 
 
 def display_companies_and_vacancies(data):
+    """
+       Выводит информацию о компаниях и количестве вакансий.
+
+       Аргументы:
+       data (list): Список данных о компаниях и их вакансиях.
+    """
     if data:
         print("company_name | count")
         print("-" * 50)
@@ -33,6 +48,14 @@ def display_companies_and_vacancies(data):
 
 
 def fetch_and_save_vacancies(company_ids, hh, db_manager):
+    """
+       Получает и сохраняет вакансии для указанных компаний.
+
+       Аргументы:
+       company_ids (list): Список идентификаторов компаний.
+       hh: Экземпляр HeadHunterApi.
+       db_manager: Экземпляр DBManager.
+    """
     vacancy_data = []
 
     for id_ in company_ids:
@@ -54,6 +77,15 @@ def fetch_and_save_vacancies(company_ids, hh, db_manager):
 
 
 def load_config(file_path='config.json'):
+    """
+        Загружает данные конфигурации из JSON-файла.
+
+        Аргументы:
+        file_path (str, необязательно): Путь к файлу конфигурации. По умолчанию 'config.json'.
+
+        Возвращает:
+        dict: Данные конфигурации.
+        """
     with open(file_path, 'r') as file:
         config = json.load(file)
     return config
