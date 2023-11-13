@@ -66,9 +66,11 @@ def fetch_and_save_vacancies(company_ids, hh, db_manager):
             print(f"Error fetching vacancies for company {id_}: {e}")
 
     for data in company_ids:
+        print(1)
         db_manager.insert_data_company(int(data["id"]), data["name"])
 
     for vacancy in vacancy_data:
+        print(2)
         db_manager.insert_data_vacancy(vacancy.id, vacancy.employer_id,
                                        vacancy.name, vacancy.data_published,
                                        vacancy.salary_average, vacancy.area,

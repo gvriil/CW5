@@ -25,7 +25,7 @@ class HeadHunterApi(API):
             list[Vacancy]: Список объектов Vacancy, представляющих вакансии.
         """
         url = "https://api.hh.ru/vacancies"
-        pages_amount = 6
+        pages_amount = 2
         params = {
             "per_page": self.per_page,
             "employer_id": int(company_id)

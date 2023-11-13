@@ -235,13 +235,6 @@ class DBManager:
         :param data: Список объектов вакансий
         :return: None
         """
-        # company_id = data[1]  # Assuming company_id is at index 1 in the data list
-        # # Check if the company_id exists in the companies table
-        # if self.run_query("SELECT COUNT(*) FROM companies WHERE company_id_hh = %s", (company_id,),
-        #                   execute=False) == 0:
-        #     logging.error(
-        #         f"Error inserting data into vacancies: Company with ID {company_id} does not exist.")
-        #     return
 
         query = "INSERT INTO vacancies VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)"
         return query, data
