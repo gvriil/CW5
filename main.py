@@ -11,8 +11,8 @@ def get_user_choice():
        Возвращает:
        str: Выбранная пользователем опция.
     """
-    user_choice = input("Введите номер выбранной опции: ")
-    return user_choice
+    input_choice = input("Введите номер выбранной опции: ")
+    return input_choice
 
 
 def print_menu():
