@@ -47,9 +47,9 @@ def print_menu():
     print("1. Получить и сохранить вакансии")
     print("2. Показать компании и количество вакансий")
     print("3. Показать все вакансии")
-    print("4. Средняя з/п")
+    print("4. Debug Средняя з/п")
     print("5. Макс. з/п")
-    print("6. Вакансии по запросу")
+    print("6. Debug Вакансии по запросу")
     print("0. Выход")
 
 
@@ -73,25 +73,27 @@ def display_companies_and_vacancies(data):
 
 def fetch_and_save_vacancies(company_ids, hh, db_manager):
     """
-       Получает и сохраняет вакансии для указанных компаний.
+    Получает и сохраняет вакансии для указанных компаний.
 
-       Аргументы:
-       company_ids (list): Список идентификаторов компаний.
-       hh: Экземпляр HeadHunterApi.
-       db_manager: Экземпляр DBManager.
+    Аргументы:
+    company_ids (list): Список идентификаторов компаний.
+    hh: Экземпляр HeadHunterApi.
+    db_manager: Экземпляр DBManager.
     """
     vacancy_data = []
 
     for id_ in company_ids:
         try:
-            vacancies = hh.get_vacancies(id_['id'])
+            # Assuming 'id_' is an integer
+            vacancies = hh.get_vacancies(id_)
             vacancy_data.extend(vacancies)
         except Exception as e:
             print(f"Error fetching vacancies for company {id_}: {e}")
 
     for data in company_ids:
+        # Assuming 'data' is an integer, no need to use ["id"] or ["name"]
         print(1)
-        db_manager.insert_data_company(int(data["id"]), data["name"])
+        db_manager.insert_data_company(int(data), f"Company {data}")
 
     for vacancy in vacancy_data:
         print(2)

@@ -1,59 +1,70 @@
-Vacancy Data Management
+# HeadHunter Vacancy Fetcher
 
-This Python script manages vacancy data by interacting with the HeadHunter API and storing the information in a PostgreSQL database. It provides a simple command-line interface for users to perform various actions related to fetching, storing, and retrieving vacancy data.
-Features
+This Python script allows you to fetch and store job vacancies data from HeadHunter API for specified companies.
 
-    Fetch and Save Vacancies: Get and save vacancy data for specified companies from the HeadHunter API.
+## Prerequisites
 
-    Display Companies and Vacancies: View a list of companies along with the count of vacancies they have.
+Make sure you have the following installed on your system:
 
-    Execute Functions: Execute specific functions to retrieve and display different aspects of the stored data.
+- Python 3.x
+- PostgreSQL
 
-Usage
+## Installation
 
-    Install the required dependencies:
+1. Clone the repository:
 
-    bash
+    ```bash
+    git clone https://github.com/gvriil/CW5.git
+    cd your-repo
+    ```
 
-pip install -r requirements.txt
+2. Install dependencies using Poetry:
 
-Create a configuration file named config.json with the following structure:
+    ```bash
+    poetry install
+    ```
 
-json
+3. Set up your PostgreSQL database. Create a `database.ini` file with your database configuration:
 
+    ```ini
+    [postgresql]
+    user = your_username
+    password = your_password
+    host = your_host
+    port = your_port
+    ```
+
+4. Run the script:
+
+    ```bash
+    poetry run python main.py
+    ```
+
+## Configuration
+
+The script uses a configuration file (`database.ini`) to connect to your PostgreSQL database. Ensure the file is correctly set up with your database details.
+
+## Usage
+
+1. The script fetches job vacancies for specified companies. You can customize the list of companies in the `companies.json` file.
+
+2. Run the script using the command:
+
+    ```bash
+    poetry run python main.py
+    ```
+
+3. Follow the on-screen menu to perform various actions, such as fetching and storing vacancies, displaying company information, and more.
+
+## Companies Configuration
+
+The list of companies and their IDs are stored in the `companies.json` file. You can edit this file to add or remove companies.
+
+```json
 {
   "companies": [
     {"name": "Company1", "id": 123},
     {"name": "Company2", "id": 456},
     ...
-  ],
-  "db_params": {
-    "dbname": "your_database_name",
-    "user": "your_database_user",
-    "password": "your_database_password",
-    "host": "your_database_host",
-    "port": "your_database_port"
-  }
+  ]
 }
-
-Run the main script:
-
-bash
-
-    python main.py
-
-    Follow the on-screen menu to interact with the script.
-
-Functions
-
-    Get All Vacancies: Display a list of all vacancies stored in the database.
-
-    Get Average Salary: Show the average salary across all vacancies.
-
-    Get Vacancies with Higher Salary: Display vacancies with a salary higher than the overall average.
-
-    Get Vacancies with Keyword: Search for vacancies with a specific keyword in their names.
-
-Exit
-
-Enter 0 to exit the script. This will close the database connection and terminate the program.
