@@ -32,7 +32,8 @@ def connect_decorator(func):
                 # Выводим данные
                 for row in rows:
                     print(row)  # Add this line to see the content of the row
-                    print(f"{row[0]} | {row[1]}")  # Предполагаем, что данные о компании и количестве вакансий в первых двух столбцах
+                    print(
+                        f"{row[0]} | {row[1]}")  # Предполагаем, что данные о компании и количестве вакансий в первых двух столбцах
 
                 print("-" * 50)
                 print(f"Всего строк: {len(rows)}")
@@ -51,16 +52,35 @@ def connect_decorator(func):
 
 
 class DBManager:
-    """
-    Этот класс предназначен для создания и управления базой данных
-    """
-
     def __init__(self, database_name: str, params: dict):
         self.name = database_name
         self.params = params
         self.create_database()
         self.create_table_companies()
         self.create_table_vacancies()
+        self.connection = None
+
+    def __enter__(self):
+        self.connect()
+        return self
+
+    def __exit__(self, exc_type, exc_value, traceback):
+        self.close_connection()
+
+    def connect(self):
+        # Логика подключения к базе данных
+        self.connection = psycopg2.connect(**self.params)
+        # Другие операции по установлению соединения
+
+    def close_connection(self):
+        # Логика закрытия соединения с базой данных
+        if self.connection:
+            self.connection.close()
+            # Другие операции по закрытию соединения
+
+    """
+    Этот класс предназначен для создания и управления базой данных
+    """
 
     def run_query(self, query: str, values: tuple = None, execute: bool = True):
         """

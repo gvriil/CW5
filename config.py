@@ -1,13 +1,10 @@
-# config.py
-API_KEY_HH = "API_KEY_HH"
-PER_PAGE = 10
+import os
+from configparser import ConfigParser
 
 DB_PARAMS = {
-    'host': 'localhost',
-    'user': 'postgres',
-    'password': '12345',
-    'dbname': 'cw5',
-    'port': 5433
+    'host': os.getenv('DB_HOST', 'localhost'),
+    'user': os.getenv('DB_USER', 'postgres'),
+    'password': os.getenv('DB_PASSWORD', '12345'),
+    'dbname': 'cw5',  # Добавьте вашу базу данных
+    'port': os.getenv('DB_PORT', '5433'),
 }
-
-

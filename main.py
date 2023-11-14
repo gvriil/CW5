@@ -1,18 +1,42 @@
-import json
-
+import configparser
 from api.hh_api import HeadHunterApi
+from config import DB_PARAMS
 from db_manager import DBManager
 
+# Переменная с идентификаторами компаний (замените фиктивные значения на реальные)
+COMPANY_IDS = [1740, 84585, 577743, 2381, 3529, 1057, 115, 903111, 4167790, 16206]
+
+def load_db_config(file_path='database.ini'):
+    """
+    Загружает параметры базы данных из файла INI.
+
+    :param file_path: str, optional
+        Путь к файлу конфигурации INI. По умолчанию 'database.ini'.
+
+    :return: dict
+        Параметры базы данных.
+    """
+    config = configparser.ConfigParser()
+    config.read(file_path)
+    db_params = {
+        'dbname': 'ваше_название_базы_данных',  # Добавьте название вашей базы данных здесь
+        'user': config['postgresql']['user'],
+        'password': config['postgresql']['password'],
+        'host': config['postgresql']['host'],
+        'port': config['postgresql']['port'],
+    }
+    return db_params
 
 def get_user_choice():
     """
-       Получает ввод пользователя для выбора опции в меню.
+    Получает ввод пользователя для выбора опции в меню.
 
-       Возвращает:
-       str: Выбранная пользователем опция.
+    Возвращает:
+    str: Выбранная пользователем опция.
     """
-    input_choice = input("Введите номер выбранной опции: ")
-    return input_choice
+    user_choice = input("Введите номер выбранной опции: ")
+    return user_choice
+
 
 
 def print_menu():
@@ -78,60 +102,43 @@ def fetch_and_save_vacancies(company_ids, hh, db_manager):
                                        vacancy.experience, vacancy.employment)
 
 
-def load_config(file_path='config.json'):
-    """
-        Загружает данные конфигурации из JSON-файла.
-
-        Аргументы:
-        file_path (str, необязательно): Путь к файлу конфигурации. По умолчанию 'config.json'.
-
-        Возвращает:
-        dict: Данные конфигурации.
-        """
-    with open(file_path, 'r') as file:
-        config = json.load(file)
-    return config
+def load_config():
+    return DB_PARAMS
 
 
 if __name__ == '__main__':
-    config = load_config()
+    config = load_db_config()
+    db_params = DB_PARAMS
 
-    # Используйте данные из конфига
-    companies = config['companies']
-    db_params = config['db_params']
+    with DBManager(database_name=db_params['dbname'], params=db_params) as db_manager:
+        hh = HeadHunterApi()
 
-    # Создайте экземпляр DBManager, используя данные из конфига
-    db_manager = DBManager(database_name=db_params['dbname'], params=db_params)
+        while True:
+            print_menu()
+            user_choice = get_user_choice()
 
-    hh = HeadHunterApi()
-
-    fetch_and_save_vacancies(companies, hh, db_manager)
-
-    while True:
-        print_menu()
-        user_choice = get_user_choice()
-
-        if user_choice == "1":
-            fetch_and_save_vacancies(companies, hh, db_manager)
-        elif user_choice == "2":
-            companies_and_vacancies = db_manager.get_companies_and_vacancies_count()
-            display_companies_and_vacancies(companies_and_vacancies)
-        elif user_choice == "3":
-            all_vacancies = db_manager.get_all_vacancies()
-            # реализация вывода all_vacancies
-        elif user_choice == "4":
-            avg_salary = db_manager.get_avg_salary()
-            print(f"Средняя з/п: {avg_salary[0]}")
-            # реализация вывода avg_salary
-        elif user_choice == "5":
-            higher_salary_vacancies = db_manager.get_vacancies_with_higher_salary()
-            # реализация вывода higher_salary_vacancies
-        elif user_choice == "6":
-            keyword = input("Введите ключевое слово: ")
-            keyword_vacancies = db_manager.get_vacancies_with_keyword(keyword)
-            # реализация вывода keyword_vacancies
-        elif user_choice == "0":
-            db_manager.close_connection()
-            break
-        else:
-            print("Некорректный ввод. Пожалуйста, введите корректное число.")
+            # Остальной код остается без изменений
+            if user_choice == "1":
+                fetch_and_save_vacancies(COMPANY_IDS, hh, db_manager)
+            elif user_choice == "2":
+                companies_and_vacancies = db_manager.get_companies_and_vacancies_count()
+                display_companies_and_vacancies(companies_and_vacancies)
+            elif user_choice == "3":
+                all_vacancies = db_manager.get_all_vacancies()
+                # реализация вывода all_vacancies
+            elif user_choice == "4":
+                avg_salary = db_manager.get_avg_salary()
+                print(f"Средняя з/п: {avg_salary[0]}")
+                # реализация вывода avg_salary
+            elif user_choice == "5":
+                higher_salary_vacancies = db_manager.get_vacancies_with_higher_salary()
+                # реализация вывода higher_salary_vacancies
+            elif user_choice == "6":
+                keyword = input("Введите ключевое слово: ")
+                keyword_vacancies = db_manager.get_vacancies_with_keyword(keyword)
+                # реализация вывода keyword_vacancies
+            elif user_choice == "0":
+                db_manager.close_connection()
+                break
+            else:
+                print("Некорректный ввод. Пожалуйста, введите корректное число.")
