@@ -1,4 +1,4 @@
-#HeadHunter API Data Processor
+# HeadHunter API Data Processor
 
 This Python application enables you to efficiently retrieve and store information about employers and their job vacancies using the HeadHunter API. The acquired data is stored in a PostgreSQL database, allowing you to execute various queries on this information.
 Project Structure
