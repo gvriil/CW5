@@ -1,70 +1,76 @@
-# HeadHunter Vacancy Fetcher
+#HeadHunter API Data Processor
 
-This Python script allows you to fetch and store job vacancies data from HeadHunter API for specified companies.
+This Python application enables you to efficiently retrieve and store information about employers and their job vacancies using the HeadHunter API. The acquired data is stored in a PostgreSQL database, allowing you to execute various queries on this information.
+Project Structure
 
-## Prerequisites
+## Installation and Execution 
 
-Make sure you have the following installed on your system:
+    Clone the repository:
 
-- Python 3.x
-- PostgreSQL
+    bash
 
-## Installation
+git clone https://github.com/gvriil/CW5.git
+cd CW5
 
-1. Clone the repository:
+Install dependencies:
 
-    ```bash
-    git clone https://github.com/gvriil/CW5.git
-    cd your-repo
-    ```
+bash
 
-2. Install dependencies using Poetry:
+pip install -r requirements.txt
 
-    ```bash
-    poetry install
-    ```
+### Configure the database:
 
-3. Set up your PostgreSQL database. Create a `database.ini` file with your database configuration:
+    Create a database.ini file with the following format, replacing placeholders with your database details:
 
-    ```ini
-    [postgresql]
-    user = your_username
-    password = your_password
-    host = your_host
-    port = your_port
-    ```
+ini
 
-4. Run the script:
+[postgresql]
+user = ваше_имя_пользователя
+password = ваш_пароль
+host = ваш_хост
+port = ваш_порт
 
-    ```bash
-    poetry run python main.py
-    ```
+### Create the database:
 
-## Configuration
+bash
 
-The script uses a configuration file (`database.ini`) to connect to your PostgreSQL database. Ensure the file is correctly set up with your database details.
+python main.py
 
-## Usage
+This script automatically creates the necessary database and tables to store information about vacancies and companies.
 
-1. The script fetches job vacancies for specified companies. You can customize the list of companies in the `companies.json` file.
+Populate the database:
 
-2. Run the script using the command:
+In the main.py file, specify the employer IDs in the company_ids variable, then run:
 
-    ```bash
-    poetry run python main.py
-    ```
+bash
 
-3. Follow the on-screen menu to perform various actions, such as fetching and storing vacancies, displaying company information, and more.
+python main.py
 
-## Companies Configuration
+The script retrieves information about companies and their vacancies from the HeadHunter API and inserts this data into the database.
 
-The list of companies and their IDs are stored in the `companies.json` file. You can edit this file to add or remove companies.
+Use the console interface:
 
-```json
-{
-  "companies": [
-    {"name": "Company1", "id": 123},
-    {"name": "Company2", "id": 456},
-    ...
-  ]
-}
+bash
+
+    python main.py
+
+    Follow the console instructions to execute various queries on the data.
+
+### Notes
+
+    Database configuration file database.ini:
+
+    The database.ini file contains connection parameters for your PostgreSQL database. Ensure it is in the same directory as your scripts.
+
+    Security:
+
+    Avoid storing the database.ini file with sensitive information (such as passwords) in public repositories. Ensure this file is not included in your VCS (e.g., add it to .gitignore).
+
+    Modifying Queries:
+
+    If you require additional queries for the data, edit the methods in the db_manager.py file.
+
+    Changing Database Structure:
+
+    To make changes to the database structure, edit the create_tables methods in the db_manager.py file.
+

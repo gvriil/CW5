@@ -93,3 +93,4 @@ data/
 superjob_api_token.txt
 
 # Add your specific project-related ignores below this line
+databse.ini
